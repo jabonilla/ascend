@@ -1,0 +1,13 @@
+{
+  "name": "roundup-savings-ios",
+  "version": "1.0.0",
+  "description": "RoundUp Savings iOS App",
+  "scripts": {
+    "claude": "npx @anthropic-ai/claude-code",
+    "claude-interactive": "npx @anthropic-ai/claude-code",
+    "claude-print": "npx @anthropic-ai/claude-code --print"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.72"
+  }
+}

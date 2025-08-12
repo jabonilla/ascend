@@ -1,0 +1,47 @@
+# Ascend iOS App Podfile
+platform :ios, '14.0'
+
+target 'RoundUpSavings' do
+  use_frameworks!
+
+  # Plaid SDK for bank account integration
+  pod 'Plaid', '~> 4.0'
+  
+  # Core Data and persistence
+  pod 'CoreDataStack', '~> 1.0'
+  
+  # Networking and API
+  pod 'Alamofire', '~> 5.8'
+  pod 'SwiftyJSON', '~> 5.0'
+  
+  # UI and animations
+  pod 'Lottie', '~> 4.3'
+  pod 'SnapKit', '~> 5.6'
+  pod 'Hero', '~> 1.6'
+  
+  # Charts and data visualization
+  pod 'Charts', '~> 4.1'
+  
+  # Image handling
+  pod 'SDWebImage', '~> 5.18'
+  
+  # Utilities
+  pod 'SwiftLint', '~> 0.50'
+  pod 'Reachability', '~> 5.1'
+  
+  # Analytics and monitoring (optional)
+  pod 'Mixpanel-swift', '~> 2.8'
+  pod 'Sentry', '~> 8.0'
+  
+  # Testing
+  pod 'Quick', '~> 6.1'
+  pod 'Nimble', '~> 11.2'
+  
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      end
+    end
+  end
+end
