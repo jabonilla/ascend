@@ -47,3 +47,4 @@ app.listen(PORT, HOST, () => {
 
 module.exports = app;
 // Redeploy trigger
+// Full Supabase integration deployed
