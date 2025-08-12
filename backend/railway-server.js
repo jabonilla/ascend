@@ -48,3 +48,4 @@ app.listen(PORT, HOST, () => {
 module.exports = app;
 // Redeploy trigger
 // Full Supabase integration deployed
+// Force redeploy with full Supabase integration
