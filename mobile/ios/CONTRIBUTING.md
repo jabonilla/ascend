@@ -2,289 +2,295 @@
 
 Thank you for your interest in contributing to Ascend! We're excited to have you join our community of developers working to transform financial futures through AI-powered debt management.
 
-## 🎯 How to Contribute
+## 📋 **Types of Contributions**
 
-### **Types of Contributions**
-
-We welcome contributions in many forms:
+We welcome all types of contributions:
 
 - 🐛 **Bug Reports**: Help us identify and fix issues
 - 💡 **Feature Requests**: Suggest new features and improvements
 - 📝 **Documentation**: Improve our docs and guides
 - 🔧 **Code Contributions**: Submit pull requests with fixes or features
-- 🧪 **Testing**: Help us test and improve the app
+- 🧪 **Testing**: Help us test and improve reliability
 - 🌍 **Localization**: Help translate the app to new languages
 
-## 🚀 Getting Started
+## 🚀 **Getting Started**
 
 ### **Prerequisites**
 
+Before contributing, make sure you have:
+
 - **iOS Development**: Xcode 15.0+, iOS 15.0+
 - **Backend Development**: Node.js 18.0+, PostgreSQL 12+
-- **Git**: Basic Git knowledge
-- **APIs**: Plaid, OpenAI accounts (for testing)
+- **Git**: Latest version of Git
+- **GitHub Account**: For pull requests and issues
 
-### **1. Fork the Repository**
+### **Development Setup**
 
-1. Go to [Ascend App Repository](https://github.com/yourusername/ascend-app)
-2. Click the "Fork" button in the top right
-3. Clone your forked repository:
+1. **Fork the Repository**
+   ```bash
+   # Fork on GitHub, then clone your fork
+   git clone https://github.com/yourusername/ascend-app.git
+   cd ascend-app
+   ```
 
-```bash
-git clone https://github.com/yourusername/ascend-app.git
-cd ascend-app
-```
+2. **Set Up Backend**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   # Edit .env with your API keys
+   npm run dev
+   ```
 
-### **2. Set Up Development Environment**
+3. **Set Up iOS App**
+   ```bash
+   cd mobile/ios
+   open RoundUpSavings.xcodeproj
+   # Build and run in Xcode
+   ```
 
-#### **Backend Setup**
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your API keys
-npm run dev
-```
+4. **Create a Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   # or
+   git checkout -b fix/your-bug-fix
+   ```
 
-#### **iOS Setup**
-```bash
-cd mobile/ios
-pod install
-open RoundUpSavings.xcworkspace
-```
+## 📝 **Code Style Guidelines**
 
-### **3. Create a Feature Branch**
-
-```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/your-bug-fix
-```
-
-## 📝 Development Guidelines
-
-### **Code Style**
-
-#### **Swift (iOS)**
-- Follow [Swift API Design Guidelines](https://swift.org/documentation/api-design-guidelines/)
+### **Swift (iOS)**
+- Use Swift 5.0+ features
+- Follow Apple's Swift API Design Guidelines
 - Use meaningful variable and function names
-- Implement proper error handling
-- Add comprehensive documentation comments
+- Add comments for complex logic
 - Use SwiftLint for code formatting
 
-#### **JavaScript (Backend)**
-- Follow [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
-- Use meaningful variable and function names
-- Implement proper error handling
-- Add JSDoc comments for functions
-- Use ESLint and Prettier for formatting
+```swift
+// Good
+func calculateDebtPayoff(debt: Debt, payment: Double) -> Date {
+    // Calculate payoff date based on payment amount
+    let remainingBalance = debt.balance - payment
+    return Date().addingTimeInterval(remainingBalance / payment * 30 * 24 * 60 * 60)
+}
 
-### **Architecture Patterns**
-
-#### **iOS App**
-- **MVVM**: Model-View-ViewModel for UI logic
-- **Service Layer**: Business logic separation
-- **Protocol-Oriented**: Swift protocol usage
-- **Dependency Injection**: Service dependencies
-
-#### **Backend API**
-- **RESTful Design**: Follow REST principles
-- **Middleware Pattern**: Reusable middleware functions
-- **Service Layer**: Business logic separation
-- **Repository Pattern**: Data access abstraction
-
-### **Testing**
-
-#### **iOS Testing**
-```bash
-# Unit Tests
-xcodebuild test -workspace RoundUpSavings.xcworkspace -scheme RoundUpSavings -destination 'platform=iOS Simulator,name=iPhone 15'
-
-# UI Tests
-xcodebuild test -workspace RoundUpSavings.xcworkspace -scheme RoundUpSavingsUITests -destination 'platform=iOS Simulator,name=iPhone 15'
+// Bad
+func calc(d: Debt, p: Double) -> Date {
+    return Date()
+}
 ```
 
-#### **Backend Testing**
+### **JavaScript (Backend)**
+- Use ES6+ features
+- Follow Airbnb JavaScript Style Guide
+- Use meaningful variable and function names
+- Add JSDoc comments for functions
+- Use ESLint and Prettier
+
+```javascript
+// Good
+/**
+ * Calculate debt payoff strategy
+ * @param {Array} debts - Array of debt objects
+ * @param {string} strategy - Payoff strategy type
+ * @returns {Object} Optimized payoff plan
+ */
+const calculatePayoffStrategy = (debts, strategy) => {
+  // Implementation
+};
+
+// Bad
+const calc = (d, s) => {
+  // Implementation
+};
+```
+
+## 🏗️ **Architecture Patterns**
+
+### **iOS App (MVVM)**
+- **Models**: Data structures and business logic
+- **Views**: UI components and user interaction
+- **ViewModels**: Business logic and data binding
+- **Services**: Network calls and external integrations
+
+### **Backend (MVC)**
+- **Models**: Database schemas and business logic
+- **Controllers**: Request handling and response formatting
+- **Routes**: API endpoint definitions
+- **Services**: Business logic and external integrations
+
+## 🧪 **Testing Guidelines**
+
+### **Backend Testing**
 ```bash
-cd backend
+# Run all tests
 npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run specific test file
+npm test -- --grep "auth"
+
+# Generate coverage report
 npm run test:coverage
 ```
 
-### **Commit Messages**
+### **iOS Testing**
+- Write unit tests for business logic
+- Write UI tests for critical user flows
+- Test both success and error scenarios
+- Maintain >80% code coverage
 
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+## 📤 **Submitting Changes**
 
+### **1. Make Your Changes**
+- Write clear, focused commits
+- Test your changes thoroughly
+- Update documentation if needed
+- Follow the code style guidelines
+
+### **2. Commit Your Changes**
+```bash
+# Use conventional commit messages
+git commit -m "feat: add debt consolidation calculator"
+git commit -m "fix: resolve authentication token refresh issue"
+git commit -m "docs: update API documentation"
+```
+
+**Commit Message Format:**
 ```
 type(scope): description
 
-feat(auth): add biometric authentication support
-fix(api): resolve token refresh issue
-docs(readme): update installation instructions
-style(ui): improve button styling
-refactor(services): simplify authentication logic
-test(api): add comprehensive API tests
-chore(deps): update dependencies
+[optional body]
+
+[optional footer]
 ```
 
-## 🔄 Pull Request Process
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
 
-### **1. Before Submitting**
-
-- [ ] Code follows style guidelines
-- [ ] Tests pass locally
-- [ ] Documentation is updated
-- [ ] No breaking changes (or clearly documented)
-
-### **2. Create Pull Request**
-
-1. Push your branch to your fork
-2. Create a pull request against the `main` branch
-3. Fill out the pull request template
-4. Add relevant labels and assignees
-
-### **3. Pull Request Template**
-
-```markdown
-## Description
-Brief description of changes
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-
-## Testing
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
-
-## Screenshots (if applicable)
-Add screenshots for UI changes
-
-## Checklist
-- [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Documentation updated
-- [ ] No console errors
+### **3. Push and Create Pull Request**
+```bash
+git push origin feature/your-feature-name
 ```
 
-### **4. Review Process**
+Then create a pull request on GitHub with:
+- Clear title and description
+- Link to related issues
+- Screenshots for UI changes
+- Test results
 
-- Maintainers will review your PR
-- Address any feedback or requested changes
-- Once approved, your PR will be merged
-
-## 🐛 Bug Reports
-
-### **Before Reporting**
-
-1. Check existing issues for duplicates
-2. Try to reproduce the issue
-3. Gather relevant information
+## 🐛 **Reporting Bugs**
 
 ### **Bug Report Template**
-
 ```markdown
-## Bug Description
-Clear description of the issue
+**Bug Description**
+A clear description of what the bug is.
 
-## Steps to Reproduce
-1. Step 1
-2. Step 2
-3. Step 3
+**Steps to Reproduce**
+1. Go to '...'
+2. Click on '...'
+3. Scroll down to '...'
+4. See error
 
-## Expected Behavior
-What should happen
+**Expected Behavior**
+What you expected to happen.
 
-## Actual Behavior
-What actually happens
+**Actual Behavior**
+What actually happened.
 
-## Environment
-- iOS Version: 15.0
-- Device: iPhone 15
-- App Version: 1.0.0
-- Backend Version: 1.0.0
+**Environment**
+- iOS Version: [e.g., 15.0]
+- Device: [e.g., iPhone 13]
+- App Version: [e.g., 1.0.0]
+- Backend Version: [e.g., 1.0.0]
 
-## Additional Information
-Screenshots, logs, etc.
+**Screenshots**
+If applicable, add screenshots.
+
+**Additional Context**
+Any other context about the problem.
 ```
 
-## 💡 Feature Requests
+## 💡 **Requesting Features**
 
 ### **Feature Request Template**
-
 ```markdown
-## Feature Description
-Clear description of the feature
+**Feature Description**
+A clear description of the feature you'd like to see.
 
-## Problem Statement
-What problem does this solve?
+**Problem Statement**
+What problem does this feature solve?
 
-## Proposed Solution
-How should this work?
+**Proposed Solution**
+How would you like this feature to work?
 
-## Alternative Solutions
-Other approaches considered
+**Alternative Solutions**
+Any alternative solutions you've considered.
 
-## Additional Context
-Screenshots, mockups, etc.
+**Additional Context**
+Any other context or screenshots.
 ```
 
-## 🏷️ Issue Labels
+## 🔍 **Review Process**
 
-We use the following labels to organize issues:
+### **Pull Request Review**
+1. **Automated Checks**: CI/CD pipeline runs tests
+2. **Code Review**: Team members review your code
+3. **Testing**: Changes are tested in staging
+4. **Approval**: Changes are approved and merged
 
-- `bug`: Something isn't working
-- `enhancement`: New feature or request
-- `documentation`: Improvements to documentation
-- `good first issue`: Good for newcomers
-- `help wanted`: Extra attention is needed
-- `priority: high`: High priority issues
-- `priority: low`: Low priority issues
-- `iOS`: iOS app related
-- `backend`: Backend API related
-- `security`: Security related issues
+### **Review Checklist**
+- [ ] Code follows style guidelines
+- [ ] Tests are included and passing
+- [ ] Documentation is updated
+- [ ] No breaking changes (or properly documented)
+- [ ] Security considerations addressed
 
-## 🎉 Recognition
+## 🏆 **Recognition**
 
-### **Contributors**
-
-We recognize contributors in several ways:
-
-- **Contributors List**: All contributors listed in README
-- **Release Notes**: Contributors credited in releases
-- **Hall of Fame**: Special recognition for significant contributions
+### **Contributor Recognition**
+- Contributors are listed in our README
+- Significant contributions get special recognition
+- Regular contributors may be invited to join the core team
 
 ### **Contributor Levels**
-
 - **🌱 Newcomer**: First contribution
 - **🌿 Regular**: Multiple contributions
-- **🌳 Core**: Significant contributions
-- **🏆 Maintainer**: Repository maintainer
+- **🌳 Veteran**: Significant contributions
+- **🏆 Core Team**: Maintainer level
 
-## 📞 Getting Help
+## 📞 **Getting Help**
 
-### **Community Channels**
-
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ascend-app/discussions)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ascend-app/issues)
-- **Email**: contributors@ascend-financial.com
+### **Community Support**
+- **GitHub Discussions**: [Ask questions](https://github.com/yourusername/ascend-app/discussions)
+- **Discord**: Join our community server
+- **Email**: dev@ascend-financial.com
 
 ### **Development Resources**
-
 - **API Documentation**: [docs.ascend-financial.com](https://docs.ascend-financial.com)
 - **Design System**: [design.ascend-financial.com](https://design.ascend-financial.com)
-- **Architecture Guide**: [architecture.ascend-financial.com](https://architecture.ascend-financial.com)
+- **Architecture Guide**: [ARCHITECTURE.md](ARCHITECTURE.md)
 
-## 📄 Code of Conduct
+## 📄 **Code of Conduct**
 
-We are committed to providing a welcoming and inspiring community for all. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to understand our community standards.
+We are committed to providing a welcoming and inclusive environment for all contributors. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
 
-## 📜 License
+## 🎯 **Project Goals**
 
-By contributing to Ascend, you agree that your contributions will be licensed under the MIT License.
+Our mission is to help people achieve financial freedom through intelligent debt management. When contributing, please keep these goals in mind:
+
+- **User-First**: Always prioritize user experience
+- **Security**: Maintain the highest security standards
+- **Accessibility**: Ensure the app is accessible to everyone
+- **Performance**: Keep the app fast and efficient
+- **Privacy**: Protect user data and privacy
 
 ---
 
