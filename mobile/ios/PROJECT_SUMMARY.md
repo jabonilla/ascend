@@ -266,9 +266,9 @@ backend/
 - **Uptime**: 99.9%+
 
 ### **Business KPIs**
-- **User Acquisition**: Monthly growth target
-- **User Retention**: 30-day retention > 70%
-- **Feature Adoption**: Key feature usage > 80%
+- **User Acquisition**: Monthly growth
+- **User Retention**: 30-day retention
+- **Feature Adoption**: Key feature usage
 - **Debt Reduction**: Average user debt reduction
 
 ### **User Engagement**
