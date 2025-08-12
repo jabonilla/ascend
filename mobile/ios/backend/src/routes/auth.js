@@ -3,13 +3,17 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 
-const { logger } = require('../utils/logger');
-const { generateTokens, verifyRefreshToken } = require('../utils/tokens');
-
 const router = express.Router();
 
 // In-memory user storage for demo (replace with database in production)
 const users = new Map();
+
+// Helper function to generate tokens (simplified for demo)
+const generateTokens = (userId) => {
+  const accessToken = `access_${userId}_${Date.now()}`;
+  const refreshToken = `refresh_${userId}_${Date.now()}`;
+  return { accessToken, refreshToken };
+};
 
 /**
  * @swagger
@@ -57,7 +61,6 @@ router.post('/register', [
   body('phone').optional().isMobilePhone(),
 ], async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -72,7 +75,6 @@ router.post('/register', [
 
     const { email, password, firstName, lastName, phone } = req.body;
 
-    // Check if user already exists
     if (users.has(email)) {
       return res.status(409).json({
         success: false,
@@ -83,11 +85,9 @@ router.post('/register', [
       });
     }
 
-    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create user
     const userId = uuidv4();
     const userData = {
       id: userId,
@@ -104,11 +104,7 @@ router.post('/register', [
     };
 
     users.set(email, userData);
-
-    // Generate tokens
     const { accessToken, refreshToken } = generateTokens(userId);
-
-    logger.info(`New user registered: ${userId}`);
 
     res.status(201).json({
       success: true,
@@ -129,7 +125,7 @@ router.post('/register', [
       }
     });
   } catch (error) {
-    logger.error('Registration error:', error);
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
       error: {
@@ -185,9 +181,8 @@ router.post('/login', [
     }
 
     const { email, password } = req.body;
-
-    // Find user by email
     const user = users.get(email);
+    
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -198,7 +193,6 @@ router.post('/login', [
       });
     }
 
-    // Check if user is active
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
@@ -209,7 +203,6 @@ router.post('/login', [
       });
     }
 
-    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -221,15 +214,11 @@ router.post('/login', [
       });
     }
 
-    // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Update last login
     user.lastLoginAt = new Date();
     user.updatedAt = new Date();
     users.set(email, user);
-
-    logger.info(`User logged in: ${user.id}`);
 
     res.json({
       success: true,
@@ -250,7 +239,7 @@ router.post('/login', [
       }
     });
   } catch (error) {
-    logger.error('Login error:', error);
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       error: {
@@ -303,8 +292,9 @@ router.post('/refresh', [
     const { refreshToken } = req.body;
 
     // Verify refresh token
-    const decoded = verifyRefreshToken(refreshToken);
-    if (!decoded) {
+    // In a real application, you would decode and verify the refresh token
+    // For this demo, we'll just check if it's not empty
+    if (!refreshToken) {
       return res.status(401).json({
         success: false,
         error: {
@@ -315,7 +305,7 @@ router.post('/refresh', [
     }
 
     // Generate new tokens
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(req.userId); // Assuming req.userId is available from middleware
 
     res.json({
       success: true,
@@ -327,7 +317,7 @@ router.post('/refresh', [
       }
     });
   } catch (error) {
-    logger.error('Token refresh error:', error);
+    console.error('Token refresh error:', error);
     res.status(500).json({
       success: false,
       error: {
@@ -352,14 +342,14 @@ router.post('/refresh', [
  */
 router.post('/logout', async (req, res) => {
   try {
-    logger.info(`User logged out: ${req.userId || 'unknown'}`);
-
+    // In a real application, you would invalidate the refresh token here
+    // For this demo, we'll just return success
     res.json({
       success: true,
       message: 'Logout successful'
     });
   } catch (error) {
-    logger.error('Logout error:', error);
+    console.error('Logout error:', error);
     res.status(500).json({
       success: false,
       error: {

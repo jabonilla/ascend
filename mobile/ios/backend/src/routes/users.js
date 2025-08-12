@@ -3,25 +3,12 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/users/profile:
- *   get:
- *     summary: Get user profile
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- */
 router.get('/profile', async (req, res) => {
   try {
-    // For demo purposes, return a mock user profile
     res.json({
       success: true,
       data: {
-        id: req.userId,
+        id: req.userId || 'demo-user-id',
         email: 'user@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -41,31 +28,6 @@ router.get('/profile', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/users/profile:
- *   put:
- *     summary: Update user profile
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               phone:
- *                 type: string
- *     responses:
- *       200:
- *         description: Profile updated successfully
- */
 router.put('/profile', [
   body('firstName').optional().trim().isLength({ min: 1 }),
   body('lastName').optional().trim().isLength({ min: 1 }),
@@ -84,11 +46,10 @@ router.put('/profile', [
       });
     }
 
-    // For demo purposes, return success
     res.json({
       success: true,
       data: {
-        id: req.userId,
+        id: req.userId || 'demo-user-id',
         ...req.body,
         updatedAt: new Date().toISOString()
       }
