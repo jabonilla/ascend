@@ -6,7 +6,7 @@ struct APIConstants {
     #if DEBUG
     static let baseURL = "http://localhost:3000"
     #else
-    static let baseURL = "https://api.ascend-financial.com" // Production URL
+    static let baseURL = "https://ascend-pcpg.onrender.com" // Production URL
     #endif
     
     static let apiVersion = "v1"
