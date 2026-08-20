@@ -203,7 +203,12 @@ CREATE TABLE transaction (
     approved_by               UUID        NOT NULL REFERENCES app_user (id),
     approved_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
     assurance_level_at_approval TEXT      NOT NULL,
-    approval_channel          TEXT        NOT NULL CHECK (approval_channel IN ('app', 'whatsapp', 'sms')),
+    -- 'system' is auto-approval from a standing recurring rule (PRD Feature 2): the
+    -- sender agreed in advance, so there is an approver but no channel they used.
+    -- Collapsing it into 'app' would misreport how approvals actually happen, which is
+    -- one of the metrics PRD §11 tracks.
+    approval_channel          TEXT        NOT NULL
+                                  CHECK (approval_channel IN ('app', 'whatsapp', 'sms', 'system')),
 
     settlement_provider       TEXT        NULL,
     provider_reference_id     TEXT        NULL,

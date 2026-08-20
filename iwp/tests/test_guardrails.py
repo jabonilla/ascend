@@ -146,7 +146,7 @@ ADAPTER_DIRS = ("settlement/adapters", "channels/adapters")
 # Brand tokens that must not appear outside an adapter directory. Add the real partner
 # and BSP names here the moment they are chosen — that is what makes P3.1's "grep the
 # codebase for provider names" an automated check instead of a habit.
-BRAND_TOKENS: tuple[str, ...] = ("mockpay",)
+BRAND_TOKENS: tuple[str, ...] = ("mockpay", "wavelink")
 
 
 def test_no_partner_or_bsp_brand_name_outside_its_adapter() -> None:
