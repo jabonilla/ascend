@@ -14,6 +14,9 @@ from collections.abc import Iterator
 import pytest
 from sqlalchemy import Engine, text
 
+# Importing the adapters package registers every settlement adapter, which is
+# what makes `get_provider("mockpay")` resolve in tests.
+import iwp.settlement.adapters  # noqa: F401
 from iwp.db.engine import make_engine
 from iwp.db.migrate import apply_migrations, drop_everything
 

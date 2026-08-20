@@ -67,7 +67,7 @@ def _sql_literals(tree: ast.Module) -> list[str]:
 
 # Modules permitted to contain a float, with the reason. Nothing here touches an amount.
 FLOAT_ALLOWLIST: dict[str, str] = {
-    "ledger/posting.py": "retry backoff jitter in seconds, never an amount",
+    "retry.py": "retry backoff jitter, in seconds — the argument time.sleep takes",
 }
 
 

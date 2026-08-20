@@ -106,6 +106,9 @@ class Transaction:
     reference_number: str
     cancellable_until: datetime | None
     settled_amount: Money
+    settlement_provider: str | None
+    provider_reference_id: str | None
+    failure_reason: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -210,7 +213,8 @@ def list_requests(
 _TRANSACTION_COLUMNS = """
     id, request_id, relationship_id, amount, currency, fee_amount, settled_amount,
     intent_state, settlement_state, approved_by, approved_at,
-    assurance_level_at_approval, approval_channel, reference_number, cancellable_until
+    assurance_level_at_approval, approval_channel, reference_number, cancellable_until,
+    settlement_provider, provider_reference_id, failure_reason
 """
 
 
@@ -231,6 +235,9 @@ def _row_to_transaction(row: RowMapping) -> Transaction:
         reference_number=row["reference_number"],
         cancellable_until=row["cancellable_until"],
         settled_amount=Money(int(row["settled_amount"]), currency),
+        settlement_provider=row["settlement_provider"],
+        provider_reference_id=row["provider_reference_id"],
+        failure_reason=row["failure_reason"],
     )
 
 
@@ -753,14 +760,13 @@ def cancel_transaction(
         transaction = get_transaction(conn, transaction_id)
         if transaction.intent_state is IntentState.CANCELLED:
             return transaction
+        # The window is the whole gate. It is opened at approval and closed by the
+        # settlement layer the moment the provider has the money in motion
+        # (`_advance` nulls it at in_flight and settled), so there is no second
+        # state check here that could disagree with it.
         if transaction.cancellable_until is None or moment > transaction.cancellable_until:
             raise RequestError(
                 f"the cancellation window for transaction {transaction_id} has closed"
-            )
-        if transaction.settlement_state is not SettlementState.NOT_STARTED:
-            raise RequestError(
-                f"transaction {transaction_id} is already {transaction.settlement_state.value} "
-                "at the provider and cannot be cancelled from here"
             )
 
         conn.execute(

@@ -20,8 +20,6 @@ from __future__ import annotations
 import enum
 import hashlib
 import json
-import random
-import time
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -32,6 +30,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from iwp.ledger.accounts import AccountRef
 from iwp.money import Money
+from iwp.retry import MAX_ATTEMPTS, backoff_sleep, sqlstate
 
 __all__ = [
     "BalanceGuard",
@@ -46,12 +45,14 @@ __all__ = [
     "credit",
     "debit",
     "post",
+    "post_within",
 ]
 
-# PostgreSQL SQLSTATEs worth retrying: serialization_failure and deadlock_detected.
+# Narrower than iwp.retry.RETRYABLE_SQLSTATES on purpose: a unique violation here is
+# only retryable when it is *our* idempotency key, which _is_idempotency_key_conflict
+# checks by constraint name. Any other unique violation is a real error.
 _RETRYABLE_SQLSTATES = frozenset({"40001", "40P01"})
 _UNIQUE_VIOLATION = "23505"
-_MAX_ATTEMPTS = 8
 
 
 class LedgerError(Exception):
@@ -179,12 +180,8 @@ def _assert_balanced(request: PostingRequest) -> None:
         raise UnbalancedPosting(f"posting does not balance ({detail})")
 
 
-def _sqlstate(exc: DBAPIError) -> str | None:
-    return getattr(getattr(exc, "orig", None), "sqlstate", None)
-
-
 def _is_retryable(exc: DBAPIError) -> bool:
-    return _sqlstate(exc) in _RETRYABLE_SQLSTATES
+    return sqlstate(exc) in _RETRYABLE_SQLSTATES
 
 
 def _is_idempotency_key_conflict(exc: IntegrityError) -> bool:
@@ -193,11 +190,35 @@ def _is_idempotency_key_conflict(exc: IntegrityError) -> bool:
     Narrowed to the specific constraint: any other unique violation is a real error
     and must not be swallowed by the retry loop.
     """
-    if _sqlstate(exc) != _UNIQUE_VIOLATION:
+    if sqlstate(exc) != _UNIQUE_VIOLATION:
         return False
     diag = getattr(getattr(exc, "orig", None), "diag", None)
     constraint = getattr(diag, "constraint_name", None) or ""
     return "idempotency_key" in constraint
+
+
+def post_within(
+    conn: Connection,
+    request: PostingRequest,
+    *,
+    guards: Sequence[BalanceGuard] = (),
+) -> PostingResult:
+    """Post inside the caller's transaction.
+
+    Use this when the posting must be atomic with something else — a settlement state
+    change, for instance, where a ledger entry without its state change (or the reverse)
+    is a reconciliation problem for a human to unpick.
+
+    **The caller owns two obligations** that :func:`post` would otherwise handle:
+
+    * the transaction must be running at SERIALIZABLE, and
+    * the caller must retry on serialization failure, and on the IntegrityError raised
+      when another poster wins the race for the same idempotency key.
+
+    ``iwp.db.engine.run_serializable`` does both.
+    """
+    _assert_balanced(request)
+    return _post_once(conn, request, request.fingerprint(), guards)
 
 
 def post(
@@ -208,6 +229,9 @@ def post(
 ) -> PostingResult:
     """Write a balanced set of ledger entries atomically and idempotently.
 
+    Opens its own SERIALIZABLE transaction and retries. Where the posting has to be
+    atomic with other writes, use :func:`post_within` instead.
+
     Returns the original result — with ``replayed=True`` — if this idempotency key has
     already been used for an identical posting.
     """
@@ -215,7 +239,7 @@ def post(
     fingerprint = request.fingerprint()
 
     last_error: DBAPIError | None = None
-    for attempt in range(_MAX_ATTEMPTS):
+    for attempt in range(MAX_ATTEMPTS):
         try:
             with (
                 engine.connect().execution_options(isolation_level="SERIALIZABLE") as conn,
@@ -234,12 +258,10 @@ def post(
             if not _is_retryable(exc):
                 raise
             last_error = exc
-            # Full jitter: concurrent retries that back off identically just collide
-            # again on the next attempt.
-            time.sleep(random.uniform(0, 0.02 * (2**attempt)))
+            backoff_sleep(attempt)
 
     raise LedgerError(
-        f"posting {request.idempotency_key} could not be serialised after {_MAX_ATTEMPTS} attempts"
+        f"posting {request.idempotency_key} could not be serialised after {MAX_ATTEMPTS} attempts"
     ) from last_error
 
 
