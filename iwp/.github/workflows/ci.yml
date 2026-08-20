@@ -31,6 +31,8 @@ jobs:
           --health-retries 10
     env:
       IWP_TEST_DATABASE_URL: postgresql+psycopg://iwp:iwp@localhost:5432/iwp_test
+      # A missing database must fail CI, not silently skip the ledger tests.
+      IWP_REQUIRE_DB: "1"
     steps:
       - uses: actions/checkout@v4
 
